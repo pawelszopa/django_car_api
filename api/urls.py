@@ -19,11 +19,12 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
+app_name = 'api'
 
 urlpatterns = [
-    path('cars/', CarList.as_view()),
-    path('cars/<int:pk>', CarDetail.as_view()),
-    path('cars/popular', CarPopular.as_view()),
-    path('cars/rate', CarRating.as_view()),
+    path('cars/', CarList.as_view(), name='car_list'),
+    path('cars/<int:pk>', CarDetail.as_view(), name='car_detail'),
+    path('cars/popular/', CarPopular.as_view(), name='car_popular'),
+    path('cars/rate/', CarRating.as_view(), name='car_rate'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

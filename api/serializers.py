@@ -4,7 +4,8 @@ from cars.models import Car, Rate
 
 
 class CarSerializer(serializers.ModelSerializer):
-    make = serializers.CharField(source='make.make')
+    make = serializers.CharField(source='make.make', required=True)
+    model = serializers.CharField(required=True)
 
     class Meta:
         model = Car
@@ -23,7 +24,8 @@ class CarPopularSerializer(serializers.ModelSerializer):
 
 
 class CarRatingSerializer(serializers.ModelSerializer):
-    car_id = serializers.IntegerField(source='car.id')
+    car_id = serializers.IntegerField(source='car_id.id')
+
     class Meta:
         model = Rate
         fields = ('car_id', 'rating')

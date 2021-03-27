@@ -23,9 +23,12 @@ class CarList(ListCreateAPIView):
 
         if serialization.is_valid():
             company_name_capitalize = request.data['make'].capitalize()
+
             company = Company.objects.filter(make=company_name_capitalize).first()
+
             if company:
-                car = Car.objects.filter(make=company.id).filter(model=company_name_capitalize).first()
+
+                car = Car.objects.filter(make=company.id).filter(model=request.data['model']).first()
 
             if company and car:
 
@@ -68,18 +71,18 @@ class CarRating(CreateAPIView):
     serializer_class = CarRatingSerializer
 
     def post(self, request, *args, **kwargs):
-        serialization = CarRatingSerializer(request.data)
-        if serialization:
-            car = Car.objects.filter(id=request.data['car_id']).first()
-            print(car)
-            if car:
-                rating = Rate.objects.create(car_id=car, rating=request.data['rating'])
-                car.rates_number = car.rates_number + 1
-                car.avg_rating = Rate.objects.filter(car_id=car.id).aggregate(Avg('rating'))['rating__avg']
-                car.save()
-                return Response(status=status.HTTP_201_CREATED)
-            else:
-                return Response('Car does not exist', status=status.HTTP_400_BAD_REQUEST)
+        serialization = CarRatingSerializer(data=request.data)
+        if serialization.is_valid():
+            if request.data['rating'] in range(1,5):
+                car = Car.objects.filter(id=request.data['car_id']).first()
+                if car:
+                    rating = Rate.objects.create(car_id=car, rating=request.data['rating'])
+                    car.rates_number = car.rates_number + 1
+                    car.avg_rating = Rate.objects.filter(car_id=car.id).aggregate(Avg('rating'))['rating__avg']
+                    car.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                else:
+                    return Response('Car does not exist', status=status.HTTP_400_BAD_REQUEST)
         return Response(serialization.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
