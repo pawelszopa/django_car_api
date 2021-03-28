@@ -91,30 +91,3 @@ class RateTest(TestCase):
         self.assertEqual(self.rate.rating, 1)
         self.assertEqual(self.rate.car_id, self.car)
         self.assertEqual(self.rate.__str__(), f'Car_id: {self.rate.car_id}, rating: {self.rate.rating}')
-
-    # def test_rating_min_max_value(self):
-    #     with self.assertRaises(DataError):
-    #         rate = Rate.objects.create(
-    #             car_id=self.car,
-    #             rating=6
-    #         )
-    #     with self.assertRaises(DataError):
-    #         rate = Rate.objects.create(
-    #             car_id=self.car,
-    #             rating=0
-    #         )
-    #     with self.assertRaises(DataError):
-    #         rate = Rate.objects.create(
-    #             car_id=self.car,
-    #             rating=1.4
-    #         )
-    #     with self.assertRaises(DataError):
-    #         rate = Rate.objects.create(
-    #             car_id=self.car,
-    #             rating=11
-    #         )
-    #     with self.assertRaises(DataError):
-    #         rate = Rate.objects.create(
-    #             car_id=self.car,
-    #             rating='2'
-    #         )

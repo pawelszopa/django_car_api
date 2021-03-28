@@ -2,7 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
-# Create your models here.
 class Company(models.Model):
     make = models.CharField(max_length=255, unique=True, default=None)
 
