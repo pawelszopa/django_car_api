@@ -15,4 +15,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # run gunicorn
-CMD gunicorn books_poc.wsgi:application --bind 0.0.0.0:$PORT
+CMD gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
