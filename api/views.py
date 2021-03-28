@@ -15,8 +15,12 @@ from cars.models import Car, Company, Rate
 
 
 class CarList(ListCreateAPIView):
-    queryset = Car.objects.all()
     serializer_class = CarSerializer
+    model = Car
+
+    def get_queryset(self):
+        query = self.model.objects.all().prefetch_related('make')
+        return query
 
     def post(self, request, *args, **kwargs):
         serialization = CarSerializer(data=request.data)
@@ -63,7 +67,7 @@ class CarDetail(RetrieveDestroyAPIView):
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
-        queryset = Car.objects.filter(pk=pk)
+        queryset = Car.objects.filter(pk=pk).prefetch_related('make')
         return queryset
 
 
@@ -88,7 +92,8 @@ class CarRating(CreateAPIView):
 
 class CarPopular(ListAPIView):
     serializer_class = CarPopularSerializer
+    model = Car
 
     def get_queryset(self):
-        queryset = Car.objects.order_by('rates_number').reverse()
-        return queryset
+        query = self.model.objects.all().prefetch_related('make')
+        return query
