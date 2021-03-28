@@ -95,5 +95,5 @@ class CarPopular(ListAPIView):
     model = Car
 
     def get_queryset(self):
-        query = self.model.objects.all().prefetch_related('make')
+        query = self.model.objects.all().order_by("-rates_number").prefetch_related('make')
         return query

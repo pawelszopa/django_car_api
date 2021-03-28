@@ -129,6 +129,11 @@ class TestCarDetail(APITestCase):
         request = api_client.delete(f"/cars/{self.car.id}")
         self.assertEqual(request.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_delete_not_existing_car(self):
+        request = api_client.delete(f"/cars/{934}")
+        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+
+
 
 class TestCarRating(APITestCase):
     def setUp(self):
@@ -164,6 +169,30 @@ class TestCarRating(APITestCase):
         response = api_client.post(reverse("api:car_rate"), rating_2, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Car.objects.get(id=rating_2['car_id']).avg_rating, 3)
+
+    def test_add_to_big_rating(self):
+        rating = {
+            "car_id": 1,
+            "rating": 41
+        }
+        response = api_client.post(reverse("api:car_rate"), rating, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_to_low_rating(self):
+        rating = {
+            "car_id": 1,
+            "rating": 0
+        }
+        response = api_client.post(reverse("api:car_rate"), rating, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_rating_to_not_existing_car(self):
+        rating = {
+            "car_id": 66,
+            "rating": 4
+        }
+        response = api_client.post(reverse("api:car_rate"), rating, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class CarPopularTest(APITestCase):
