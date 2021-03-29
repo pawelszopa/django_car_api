@@ -2,7 +2,7 @@ import json
 import urllib
 
 import requests
-from django.db.models import Avg
+from django.db.models import Avg, Prefetch, Count
 from django.http import HttpRequest
 from django.shortcuts import render
 
@@ -22,6 +22,7 @@ class CarList(ListCreateAPIView):
     def get_queryset(self):
         query = self.model.objects.all().prefetch_related('make')
         return query
+
 
     def post(self, request, *args, **kwargs):
         serialization = CarSerializer(data=request.data)
@@ -78,9 +79,6 @@ class CarRating(CreateAPIView):
                 car = Car.objects.filter(id=request.data['car_id']).first()
                 if car:
                     rating = Rate.objects.create(car_id=car, rating=request.data['rating'])
-                    car.rates_number = car.rates_number + 1
-                    car.avg_rating = Rate.objects.filter(car_id=car.id).aggregate(Avg('rating'))['rating__avg']
-                    car.save()
                     return Response(status=status.HTTP_201_CREATED)
                 else:
                     return Response('Car does not exist', status=status.HTTP_400_BAD_REQUEST)
@@ -90,7 +88,9 @@ class CarRating(CreateAPIView):
 class CarPopular(ListAPIView):
     serializer_class = CarPopularSerializer
     model = Car
+    queryset = Car.objects.all().prefetch_related('make')
 
-    def get_queryset(self):
-        query = self.model.objects.all().order_by("-rates_number").prefetch_related('make')
-        return query
+    def list(self, request, *args, **kwargs):
+        serializer = super().list(request)
+        serializer_data = sorted(serializer.data, key=lambda x: x["rates_number"], reverse=True)
+        return Response(serializer_data)

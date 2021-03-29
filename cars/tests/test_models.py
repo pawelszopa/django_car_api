@@ -1,7 +1,6 @@
 from django.db import DataError, IntegrityError
 from django.test import TestCase
 
-# Create your tests here.
 from cars.models import Company, Car, Rate
 
 
@@ -53,7 +52,7 @@ class CarTest(TestCase):
     def test_car_fields(self):
         self.assertEqual(
             [*self.car.__dict__],
-            ['_state', 'id', 'model', 'make_id', 'avg_rating', 'rates_number']
+            ['_state', 'id', 'model', 'make_id']
         )
 
     def test_car_model_max_length(self):
@@ -65,12 +64,6 @@ class CarTest(TestCase):
     def test_car_model_without_data(self):
         with self.assertRaises(IntegrityError):
             test_car = Car.objects.create()
-
-    def test_avg_rating_default(self):
-        self.assertEqual(self.car.avg_rating, 0.00)
-
-    def test_rates_number_default(self):
-        self.assertEqual(self.car.rates_number, 0)
 
 
 class RateTest(TestCase):

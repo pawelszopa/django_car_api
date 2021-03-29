@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.test import Client
 from django.urls import reverse
 from rest_framework import status
@@ -24,10 +25,9 @@ class TestCarList(APITestCase):
         )
 
     def test_get_car_list(self):
-        request = factory.get(reverse("api:car_list"))
-        view = CarList.as_view()
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        request = api_client.get(reverse("api:car_list"))
+
+        self.assertEqual(request.status_code, status.HTTP_200_OK)
 
     def test_serializer_response(self):
         serializer_response = client.get(reverse("api:car_list"))
@@ -42,7 +42,6 @@ class TestCarList(APITestCase):
         self.assertEqual(data['id'], self.car.id)
         self.assertEqual(data['make'], self.car.make.make)
         self.assertEqual(data['model'], self.car.model)
-        self.assertEqual(data['avg_rating'], self.car.avg_rating)
 
     def test_post_car_valid_data(self):
         data = {
@@ -134,7 +133,6 @@ class TestCarDetail(APITestCase):
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
 
 
-
 class TestCarRating(APITestCase):
     def setUp(self):
         self.company = Company.objects.create(
@@ -153,7 +151,8 @@ class TestCarRating(APITestCase):
         }
         response = api_client.post(reverse("api:car_rate"), rating, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Car.objects.get(id=rating['car_id']).avg_rating, rating['rating'])
+        rate = round(Rate.objects.filter(car_id=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
+        self.assertEqual(rate, rating['rating'])
 
     def test_add_multiple_time(self):
         rating = {
@@ -168,7 +167,8 @@ class TestCarRating(APITestCase):
         }
         response = api_client.post(reverse("api:car_rate"), rating_2, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Car.objects.get(id=rating_2['car_id']).avg_rating, 3)
+        rate = round(Rate.objects.filter(car_id=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
+        self.assertEqual(rate, 3)
 
     def test_add_to_big_rating(self):
         rating = {
