@@ -7,7 +7,7 @@ from api.serializers import CarSerializer, CarPopularSerializer, CarRatingSerial
 from cars.models import Car, Company, Rate
 
 
-class TestCarSerializer(TestCase):
+class CarSerializerTest(TestCase):
     def setUp(self):
         self.company = Company.objects.create(
             make='Honda'
@@ -17,11 +17,48 @@ class TestCarSerializer(TestCase):
             make=self.company
         )
 
+        self.serializer_data = {
+            "make": "Volkswagen",
+            "model": "Golf"
+        }
+
+        Rate.objects.create(car_id=self.car, rating=5)
+        Rate.objects.create(car_id=self.car, rating=1)
+
         self.serialized_model = CarSerializer(instance=self.car)
 
-    def test_module_fields(self):
+    def test_get_module_fields(self):
         data = self.serialized_model.data
         self.assertEqual(data.keys(), {'id', 'make', 'model', 'avg_rating'})
+
+    def test_get_serializer_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["id"], self.car.id)
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
+        self.assertEqual(data["avg_rating"], 3)
+
+    def test_contain_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
+
+    def test_too_long_make(self):
+        self.serializer_data["make"] = "x" * 256
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["make"])
+
+    def test_too_long_model(self):
+        self.serializer_data["model"] = "x" * 256
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["model"])
+
+    def test_valid_data(self):
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertFalse(serializer.errors)
 
 
 class CarPopularSerializerTest(TestCase):
@@ -34,15 +71,30 @@ class CarPopularSerializerTest(TestCase):
             make=self.company
         )
 
+        Rate.objects.create(car_id=self.car, rating=5)
+        Rate.objects.create(car_id=self.car, rating=1)
+
         self.serialized_model = CarPopularSerializer(instance=self.car)
 
     def test_module_fields(self):
         data = self.serialized_model.data
         self.assertEqual(data.keys(), {'id', 'make', 'model', 'rates_number'})
 
+    def test_get_serializer_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["id"], self.car.id)
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
+        self.assertEqual(data["rates_number"], 2)
+
 
 class CarRatingSerializerTest(TestCase):
     def setUp(self):
+        self.serializer_data = {
+            "car_id": 1,
+            "rating": 1
+        }
+
         self.company = Company.objects.create(
             make='Honda'
         )
@@ -59,4 +111,21 @@ class CarRatingSerializerTest(TestCase):
         data = self.serialized_model.data
         self.assertEqual(data.keys(), {'car_id', 'rating'})
 
+    def test_contain_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["car_id"], self.rate.car_id.id)
+        self.assertEqual(data["rating"], self.rate.rating)
 
+    def test_too_small_rating_data(self):
+        self.serializer_data["rating"] = 0
+        serializer = CarRatingSerializer(data=self.serializer_data)
+
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["rating"])
+
+    def test_too_big_rating_data(self):
+        self.serializer_data["rating"] = 6
+        serializer = CarRatingSerializer(data=self.serializer_data)
+
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["rating"])
