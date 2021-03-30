@@ -22,8 +22,8 @@ class CarSerializerTest(TestCase):
             "model": "Golf"
         }
 
-        Rate.objects.create(car_id=self.car, rating=5)
-        Rate.objects.create(car_id=self.car, rating=1)
+        Rate.objects.create(car=self.car, rating=5)
+        Rate.objects.create(car=self.car, rating=1)
 
         self.serialized_model = CarSerializer(instance=self.car)
 
@@ -71,8 +71,8 @@ class CarPopularSerializerTest(TestCase):
             make=self.company
         )
 
-        Rate.objects.create(car_id=self.car, rating=5)
-        Rate.objects.create(car_id=self.car, rating=1)
+        Rate.objects.create(car=self.car, rating=5)
+        Rate.objects.create(car=self.car, rating=1)
 
         self.serialized_model = CarPopularSerializer(instance=self.car)
 
@@ -103,7 +103,7 @@ class CarRatingSerializerTest(TestCase):
             make=self.company
         )
         self.rate = Rate.objects.create(
-            car_id=self.car
+            car=self.car
         )
         self.serialized_model = CarRatingSerializer(instance=self.rate)
 
@@ -113,7 +113,7 @@ class CarRatingSerializerTest(TestCase):
 
     def test_contain_expected_values(self):
         data = self.serialized_model.data
-        self.assertEqual(data["car_id"], self.rate.car_id.id)
+        self.assertEqual(data["car_id"], self.rate.car.id)
         self.assertEqual(data["rating"], self.rate.rating)
 
     def test_too_small_rating_data(self):

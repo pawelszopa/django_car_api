@@ -24,7 +24,7 @@ app_name = 'api'
 urlpatterns = [
     path('cars/', CarList.as_view(), name='car_list'),
     path('cars/<int:pk>', CarDetail.as_view(), name='car_detail'),
-    path('cars/popular/', CarPopular.as_view(), name='car_popular'),
-    path('cars/rate/', CarRating.as_view(), name='car_rate'),
+    path('popular/', CarPopular.as_view(), name='car_popular'),
+    path('rate/', CarRating.as_view(), name='car_rate'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

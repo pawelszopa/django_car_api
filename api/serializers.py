@@ -17,7 +17,7 @@ class CarSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_avg_rating(instance):
         try:
-            avg_rating = round(Rate.objects.filter(car_id=instance.id).aggregate(Avg('rating')).get('rating__avg'), 2)
+            avg_rating = round(Rate.objects.filter(car=instance.id).aggregate(Avg('rating')).get('rating__avg'), 2)
         except TypeError:
             avg_rating = 0
 
@@ -35,11 +35,11 @@ class CarPopularSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_rates_number(instance):
-        return Rate.objects.filter(car_id=instance.id).count()
+        return Rate.objects.filter(car=instance.id).count()
 
 
 class CarRatingSerializer(serializers.ModelSerializer):
-    car_id = serializers.IntegerField(source='car_id.id')
+    car_id = serializers.IntegerField(source='car.id')
 
     class Meta:
         model = Rate

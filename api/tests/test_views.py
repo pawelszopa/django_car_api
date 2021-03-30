@@ -39,7 +39,6 @@ class TestCarList(APITestCase):
         serializer_response = client.get(reverse("api:car_list"))
         data = dict(serializer_response.data[0])
         self.assertEqual(data['id'], self.car.id)
-        self.assertEqual(data['id'], self.car.id)
         self.assertEqual(data['make'], self.car.make.make)
         self.assertEqual(data['model'], self.car.model)
 
@@ -147,11 +146,11 @@ class TestCarRating(APITestCase):
     def test_add_rating(self):
         rating = {
             "car_id": 1,
-            "rating": 4
+            "rating": 2
         }
         response = api_client.post(reverse("api:car_rate"), rating, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        rate = round(Rate.objects.filter(car_id=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
+        rate = round(Rate.objects.filter(car=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
         self.assertEqual(rate, rating['rating'])
 
     def test_add_multiple_time(self):
@@ -159,6 +158,7 @@ class TestCarRating(APITestCase):
             "car_id": 1,
             "rating": 4
         }
+
         response_1 = api_client.post(reverse("api:car_rate"), rating, format='json')
 
         rating_2 = {
@@ -166,8 +166,9 @@ class TestCarRating(APITestCase):
             "rating": 2
         }
         response = api_client.post(reverse("api:car_rate"), rating_2, format='json')
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        rate = round(Rate.objects.filter(car_id=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
+        rate = round(Rate.objects.filter(car=rating['car_id']).aggregate(Avg('rating')).get('rating__avg'), 2)
         self.assertEqual(rate, 3)
 
     def test_add_to_big_rating(self):
@@ -226,6 +227,7 @@ class CarPopularTest(APITestCase):
             "car_id": 1,
             "rating": 2
         }
+
         response = api_client.post(reverse("api:car_rate"), rating_2, format='json')
 
         rating_3 = {

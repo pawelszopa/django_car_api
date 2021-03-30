@@ -19,7 +19,7 @@ class Car(models.Model):
 
 class Rate(models.Model):
     rating = models.IntegerField(default=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
-    car_id = models.ForeignKey('Car', on_delete=models.CASCADE)
+    car = models.ForeignKey('Car', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'Car_id: {self.car_id}, rating: {self.rating}'
+        return f'Car_id: {self.car}, rating: {self.rating}'
