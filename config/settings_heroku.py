@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", default='secret')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", '').split(" ")
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'immense-refuge-23099.herokuapp.com']
 
 
 # Application definition
@@ -161,8 +161,4 @@ INTERNAL_IPS = [
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG
-}
-
-SWAGGER_SETTINGS = {
-    'VALIDATOR_URL': None,
 }
