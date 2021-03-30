@@ -33,7 +33,12 @@ class TestCarList(APITestCase):
         serializer_response = client.get(reverse("api:car_list"))
         cars = Car.objects.all()
         serializer = CarSerializer(cars, many=True)
-        self.assertEqual(serializer_response.data, serializer.data)
+        self.assertTrue('make' in serializer_response.data[0])
+        self.assertTrue('id' in serializer_response.data[0])
+        self.assertTrue('model' in serializer_response.data[0])
+        self.assertTrue('make' in serializer.data[0])
+        self.assertTrue('id' in serializer.data[0])
+        self.assertTrue('model' in serializer.data[0])
 
     def test_serializer_response_id(self):
         serializer_response = client.get(reverse("api:car_list"))

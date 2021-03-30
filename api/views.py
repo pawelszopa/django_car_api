@@ -1,5 +1,5 @@
 import requests
-from django.db.models import Count
+from django.db.models import Count, Avg, Func
 
 from rest_framework import status
 from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, CreateAPIView, ListAPIView
@@ -14,8 +14,9 @@ class CarList(ListCreateAPIView):
     model = Car
 
     def get_queryset(self):
-        query = self.model.objects.all().prefetch_related('make')
-        return query
+        queryset = Car.objects.select_related("make").all().annotate(
+            avg_rating=Func(Avg("rate__rating"), 2, function="ROUND"))
+        return queryset
 
     def post(self, request, *args, **kwargs):
         serialization = CarSerializer(data=request.data)

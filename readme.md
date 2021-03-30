@@ -16,10 +16,10 @@ if localhost:
 `http://localhost:8000/swagger/`
 
 ### Endpoints:
-1. `/car`  POST & GET - allows to get list of cars and send a new car to database
-2. `/car/rate` POST - allows to rate a car
-3. `/car/{id}` GET & DELETE - allows to get information about a car by id and delete car by id
-4. `/car/popular` GET  - allows to list cars based on rates amount.
+1. `/cars`  POST & GET - allows to get list of cars and send a new car to database
+2. `/rate` POST - allows to rate a car
+3. `/cars/{id}` GET & DELETE - allows to get information about a car by id and delete car by id
+4. `/popular` GET  - allows to list cars based on rates amount.
 
 
 ### Tests

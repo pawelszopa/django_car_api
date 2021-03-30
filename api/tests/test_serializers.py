@@ -29,14 +29,15 @@ class CarSerializerTest(TestCase):
 
     def test_get_module_fields(self):
         data = self.serialized_model.data
-        self.assertEqual(data.keys(), {'id', 'make', 'model', 'avg_rating'})
+        self.assertTrue('make' in data.keys())
+        self.assertTrue('id' in data.keys())
+        self.assertTrue('model' in data.keys())
 
     def test_get_serializer_expected_values(self):
         data = self.serialized_model.data
         self.assertEqual(data["id"], self.car.id)
         self.assertEqual(data["make"], self.company.make)
         self.assertEqual(data["model"], self.car.model)
-        self.assertEqual(data["avg_rating"], 3)
 
     def test_contain_expected_values(self):
         data = self.serialized_model.data
@@ -78,14 +79,13 @@ class CarPopularSerializerTest(TestCase):
 
     def test_module_fields(self):
         data = self.serialized_model.data
-        self.assertEqual(data.keys(), {'id', 'make', 'model', 'rates_number'})
+        self.assertEqual(data.keys(), {'id', 'make', 'model'})
 
     def test_get_serializer_expected_values(self):
         data = self.serialized_model.data
         self.assertEqual(data["id"], self.car.id)
         self.assertEqual(data["make"], self.company.make)
         self.assertEqual(data["model"], self.car.model)
-        self.assertEqual(data["rates_number"], 2)
 
 
 class CarRatingSerializerTest(TestCase):
