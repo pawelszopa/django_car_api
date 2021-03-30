@@ -22,14 +22,38 @@ class CarSerializerTest(TestCase):
             "model": "Golf"
         }
 
-        Rate.objects.create(car_id=self.car, rating=5)
-        Rate.objects.create(car_id=self.car, rating=1)
+        Rate.objects.create(car=self.car, rating=5)
+        Rate.objects.create(car=self.car, rating=1)
 
         self.serialized_model = CarSerializer(instance=self.car)
 
     def test_get_module_fields(self):
         data = self.serialized_model.data
-        self.assertEqual(data.keys(), {'id', 'make', 'model', 'avg_rating'})
+        self.assertEqual(data["id"], self.car.id)
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
+
+    def test_contain_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
+
+    def test_too_long_make(self):
+        self.serializer_data["make"] = "x" * 256
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["make"])
+
+    def test_too_long_model(self):
+        self.serializer_data["model"] = "x" * 256
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ["model"])
+
+    def test_valid_data(self):
+        serializer = CarSerializer(data=self.serializer_data)
+        self.assertTrue(serializer.is_valid())
+        self.assertFalse(serializer.errors)
 
     def test_get_serializer_expected_values(self):
         data = self.serialized_model.data
@@ -71,14 +95,20 @@ class CarPopularSerializerTest(TestCase):
             make=self.company
         )
 
-        Rate.objects.create(car_id=self.car, rating=5)
-        Rate.objects.create(car_id=self.car, rating=1)
+        Rate.objects.create(car=self.car, rating=5)
+        Rate.objects.create(car=self.car, rating=1)
 
         self.serialized_model = CarPopularSerializer(instance=self.car)
 
     def test_module_fields(self):
         data = self.serialized_model.data
-        self.assertEqual(data.keys(), {'id', 'make', 'model', 'rates_number'})
+        self.assertEqual(data.keys(), {'id', 'make', 'model'})
+
+    def test_get_serializer_expected_values(self):
+        data = self.serialized_model.data
+        self.assertEqual(data["id"], self.car.id)
+        self.assertEqual(data["make"], self.company.make)
+        self.assertEqual(data["model"], self.car.model)
 
     def test_get_serializer_expected_values(self):
         data = self.serialized_model.data
@@ -103,7 +133,7 @@ class CarRatingSerializerTest(TestCase):
             make=self.company
         )
         self.rate = Rate.objects.create(
-            car_id=self.car
+            car=self.car
         )
         self.serialized_model = CarRatingSerializer(instance=self.rate)
 
@@ -113,7 +143,9 @@ class CarRatingSerializerTest(TestCase):
 
     def test_contain_expected_values(self):
         data = self.serialized_model.data
-        self.assertEqual(data["car_id"], self.rate.car_id.id)
+
+        self.assertEqual(data["car_id"], self.rate.car.id)
+
         self.assertEqual(data["rating"], self.rate.rating)
 
     def test_too_small_rating_data(self):

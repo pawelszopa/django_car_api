@@ -1,6 +1,7 @@
-import json
-import urllib
+import requests
+from django.db.models import Count, Avg, Func
 
+<<<<<<< HEAD
 import requests
 from django.db.models import Avg, Prefetch, Count
 from django.http import HttpRequest
@@ -9,6 +10,10 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import generics, status
 from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, UpdateAPIView, CreateAPIView, ListAPIView
+=======
+from rest_framework import status
+from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, CreateAPIView, ListAPIView
+>>>>>>> master
 from rest_framework.response import Response
 
 from api.serializers import CarSerializer, CarPopularSerializer, CarRatingSerializer
@@ -20,8 +25,9 @@ class CarList(ListCreateAPIView):
     model = Car
 
     def get_queryset(self):
-        query = self.model.objects.all().prefetch_related('make')
-        return query
+        queryset = Car.objects.select_related("make").all().annotate(
+            avg_rating=Func(Avg("rate__rating"), 2, function="ROUND"))
+        return queryset
 
 
     def post(self, request, *args, **kwargs):
@@ -38,7 +44,14 @@ class CarList(ListCreateAPIView):
                 return Response('Already exist', status=status.HTTP_400_BAD_REQUEST)
 
             else:
+<<<<<<< HEAD
                 json_data = self.request_to_external_car_api(request.data['make'])
+=======
+                try:
+                    json_data = self.request_to_external_car_api(request.data['make'])
+                except:
+                    return Response('External API problem', status=status.HTTP_400_BAD_REQUEST)
+>>>>>>> master
 
                 if json_data['Count'] > 0:
                     for model in json_data['Results']:
@@ -78,7 +91,9 @@ class CarRating(CreateAPIView):
             if request.data['rating'] in range(1, 5):
                 car = Car.objects.filter(id=request.data['car_id']).first()
                 if car:
-                    rating = Rate.objects.create(car_id=car, rating=request.data['rating'])
+
+                    rating = Rate.objects.create(car=car, rating=request.data['rating'])
+
                     return Response(status=status.HTTP_201_CREATED)
                 else:
                     return Response('Car does not exist', status=status.HTTP_400_BAD_REQUEST)
@@ -88,9 +103,7 @@ class CarRating(CreateAPIView):
 class CarPopular(ListAPIView):
     serializer_class = CarPopularSerializer
     model = Car
-    queryset = Car.objects.all().prefetch_related('make')
 
-    def list(self, request, *args, **kwargs):
-        serializer = super().list(request)
-        serializer_data = sorted(serializer.data, key=lambda x: x["rates_number"], reverse=True)
-        return Response(serializer_data)
+
+    queryset = Car.objects.select_related("make").all().annotate(
+        rates_number=Count("rate__rating")).order_by("-rates_number")

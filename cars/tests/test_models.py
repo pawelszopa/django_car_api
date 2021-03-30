@@ -76,11 +76,16 @@ class RateTest(TestCase):
             make=self.company
         )
         self.rate = Rate.objects.create(
-            car_id=self.car
+            car=self.car
         )
 
     def test_rate_create(self):
         self.assertTrue(isinstance(self.rate, Rate))
         self.assertEqual(self.rate.rating, 1)
+<<<<<<< HEAD
         self.assertEqual(self.rate.car_id, self.car)
         self.assertEqual(self.rate.__str__(), f'Car_id: {self.rate.car_id}, rating: {self.rate.rating}')
+=======
+        self.assertEqual(self.rate.car, self.car)
+        self.assertEqual(self.rate.__str__(), f'Car_id: {self.rate.car}, rating: {self.rate.rating}')
+>>>>>>> master

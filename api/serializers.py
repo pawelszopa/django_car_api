@@ -7,26 +7,22 @@ from cars.models import Car, Rate
 class CarSerializer(serializers.ModelSerializer):
     make = serializers.CharField(source='make.make', required=True, max_length=255)
     model = serializers.CharField(required=True, max_length=255)
-    avg_rating = serializers.SerializerMethodField()
+
+    avg_rating = serializers.FloatField(read_only=True)
+
 
     class Meta:
         model = Car
         fields = ('id', 'make', 'model', 'avg_rating')
         depth = 1
 
-    @staticmethod
-    def get_avg_rating(instance):
-        try:
-            avg_rating = round(Rate.objects.filter(car_id=instance.id).aggregate(Avg('rating')).get('rating__avg'), 2)
-        except TypeError:
-            avg_rating = 0
-
-        return avg_rating
 
 
 class CarPopularSerializer(serializers.ModelSerializer):
     make = serializers.ReadOnlyField(source='make.make')
-    rates_number = serializers.SerializerMethodField()
+
+    rates_number = serializers.IntegerField(read_only=True)
+
 
     class Meta:
         model = Car
@@ -39,7 +35,7 @@ class CarPopularSerializer(serializers.ModelSerializer):
 
 
 class CarRatingSerializer(serializers.ModelSerializer):
-    car_id = serializers.IntegerField(source='car_id.id')
+    car_id = serializers.IntegerField(source='car.id')
 
     class Meta:
         model = Rate
