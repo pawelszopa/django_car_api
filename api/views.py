@@ -1,19 +1,9 @@
 import requests
 from django.db.models import Count, Avg, Func
 
-<<<<<<< HEAD
-import requests
-from django.db.models import Avg, Prefetch, Count
-from django.http import HttpRequest
-from django.shortcuts import render
-
-# Create your views here.
-from rest_framework import generics, status
-from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, UpdateAPIView, CreateAPIView, ListAPIView
-=======
 from rest_framework import status
 from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, CreateAPIView, ListAPIView
->>>>>>> master
+
 from rest_framework.response import Response
 
 from api.serializers import CarSerializer, CarPopularSerializer, CarRatingSerializer
@@ -29,7 +19,6 @@ class CarList(ListCreateAPIView):
             avg_rating=Func(Avg("rate__rating"), 2, function="ROUND"))
         return queryset
 
-
     def post(self, request, *args, **kwargs):
         serialization = CarSerializer(data=request.data)
 
@@ -44,14 +33,11 @@ class CarList(ListCreateAPIView):
                 return Response('Already exist', status=status.HTTP_400_BAD_REQUEST)
 
             else:
-<<<<<<< HEAD
-                json_data = self.request_to_external_car_api(request.data['make'])
-=======
+
                 try:
                     json_data = self.request_to_external_car_api(request.data['make'])
                 except:
                     return Response('External API problem', status=status.HTTP_400_BAD_REQUEST)
->>>>>>> master
 
                 if json_data['Count'] > 0:
                     for model in json_data['Results']:
@@ -103,7 +89,6 @@ class CarRating(CreateAPIView):
 class CarPopular(ListAPIView):
     serializer_class = CarPopularSerializer
     model = Car
-
 
     queryset = Car.objects.select_related("make").all().annotate(
         rates_number=Count("rate__rating")).order_by("-rates_number")
