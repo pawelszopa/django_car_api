@@ -23,9 +23,9 @@ if localhost:
 
 
 ### Tests
-1.Model tests - type command `docker-compose exec web python manage.py test api/tests` in terminal in project root directory.
+1.API tests - type command `docker-compose exec web python manage.py test api/tests` in terminal in project root directory.
 
-2.API tests - type command `docker-compose exec web python manage.py test cars/tests` in terminal in project root directory.
+2.Models tests - type command `docker-compose exec web python manage.py test cars/tests` in terminal in project root directory.
 
 
 ## Licence
